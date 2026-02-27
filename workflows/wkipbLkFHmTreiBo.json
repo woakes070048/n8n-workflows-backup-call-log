@@ -1,0 +1,68 @@
+{
+  "active": true,
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2026-02-26T19:16:45.171Z",
+  "id": "wkipbLkFHmTreiBo",
+  "isArchived": false,
+  "meta": null,
+  "name": "Digistore Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-digistore-info",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -368,
+        0
+      ],
+      "id": "0b3071dd-f711-413b-af3d-9c47d61f07af",
+      "name": "Webhook",
+      "webhookId": "4031a140-541e-47c3-bda4-57d9732bf95f"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.executionData",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d5a1e364-1a25-4e7e-8e46-74ff2ced5801",
+      "name": "Execution Data"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2026-02-26T19:16:45.175Z",
+      "createdAt": "2026-02-26T19:16:45.175Z",
+      "role": "workflow:owner",
+      "workflowId": "wkipbLkFHmTreiBo",
+      "projectId": "POhXKLALTFDZhVtj"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-26T19:17:10.000Z",
+  "versionId": "139b1673-eace-4a68-854b-ca430bc6532f"
+}
