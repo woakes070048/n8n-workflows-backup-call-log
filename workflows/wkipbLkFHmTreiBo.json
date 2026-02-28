@@ -1,11 +1,140 @@
 {
-  "active": true,
+  "active": false,
   "connections": {
-    "Webhook": {
+    "Received IPN Event From Digistore": {
       "main": [
         [
           {
-            "node": "Execution Data",
+            "node": "Route By Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Event": {
+      "main": [
+        [
+          {
+            "node": "Add User Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Add User Record": {
+      "main": [
+        [
+          {
+            "node": "Product ID Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Subscription": {
+      "main": [
+        [
+          {
+            "node": "Record Transaction Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data-out Webhook Ezycourse - SIGNUP": {
+      "main": [
+        [
+          {
+            "node": "Verify Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Signature": {
+      "main": [
+        [
+          {
+            "node": "Update Ezycourse ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ezycourse ID": {
+      "main": [
+        [
+          {
+            "node": "Find the Purchased Product ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find the Purchased Product ID": {
+      "main": [
+        [
+          {
+            "node": "Enroll Student into Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product ID Mapping": {
+      "main": [
+        [
+          {
+            "node": "Add Subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enroll Student into Product": {
+      "main": [
+        [
+          {
+            "node": "Get User Quota",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Quota": {
+      "main": [
+        [
+          {
+            "node": "Map Credit Based on Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Credit Based on Product": {
+      "main": [
+        [
+          {
+            "node": "Update Credits",
             "type": "main",
             "index": 0
           }
@@ -16,8 +145,10 @@
   "createdAt": "2026-02-26T19:16:45.171Z",
   "id": "wkipbLkFHmTreiBo",
   "isArchived": false,
-  "meta": null,
-  "name": "Digistore Webhook",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Digistore Product Purchase Automation",
   "nodes": [
     {
       "parameters": {
@@ -28,26 +159,654 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -368,
-        0
+        -1024,
+        -208
       ],
       "id": "0b3071dd-f711-413b-af3d-9c47d61f07af",
-      "name": "Webhook",
+      "name": "Received IPN Event From Digistore",
       "webhookId": "4031a140-541e-47c3-bda4-57d9732bf95f"
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.executionData",
-      "typeVersion": 1.1,
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "payment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "baced0e0-53ea-4073-bf9a-fd0547cfa5db"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Payment Created"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ef1dc464-e919-4fb5-8028-ba6d716e303c",
+                    "leftValue": "={{ $json.body.event }}",
+                    "rightValue": "on_rebill",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Re-Bill"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
       "position": [
-        208,
-        0
+        -672,
+        -208
       ],
-      "id": "d5a1e364-1a25-4e7e-8e46-74ff2ced5801",
-      "name": "Execution Data"
+      "id": "d7b1f2e3-785e-4354-8ac2-d149b90ed00a",
+      "name": "Route By Event"
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').item.json.body.email }}"
+            },
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').item.json.body.first_name }} {{ $('Received IPN Event From Digistore').item.json.body.last_name }}"
+            },
+            {
+              "fieldId": "role",
+              "fieldValue": "user"
+            },
+            {
+              "fieldId": "role_level",
+              "fieldValue": "20"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -400
+      ],
+      "id": "cac33d07-9813-490f-b8df-7e27a3b2f790",
+      "name": "Add User Record",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "subscriptions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "order_id",
+              "fieldValue": "={{ $('Route By Event').first().json.body.order_id }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "product_id",
+              "fieldValue": "={{ $('Route By Event').first().json.body.product_id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "active"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Add User Record').first().json.email }}"
+            },
+            {
+              "fieldId": "ezycourse_product_id",
+              "fieldValue": "={{ $json.ezycourse_product_id }}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Add User Record').first().json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -400
+      ],
+      "id": "ce2784c2-2777-44e6-b551-5392d0a22ad6",
+      "name": "Add Subscription",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "transactions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "transaction_id",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body.transaction_id }}"
+            },
+            {
+              "fieldId": "order_id",
+              "fieldValue": "={{ $json.order_id }}"
+            },
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Add User Record').first().json.id }}"
+            },
+            {
+              "fieldId": "ipn_payload",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body }}"
+            },
+            {
+              "fieldId": "amount",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body.amount_brutto }}"
+            },
+            {
+              "fieldId": "event",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body.event }}"
+            },
+            {
+              "fieldId": "currency",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body.currency }}"
+            },
+            {
+              "fieldId": "ipn_payload",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body }}"
+            },
+            {
+              "fieldId": "currency",
+              "fieldValue": "={{ $('Received IPN Event From Digistore').first().json.body.currency }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        864,
+        -400
+      ],
+      "id": "64fd07af-1b63-4d96-a417-bddbb3977110",
+      "name": "Record Transaction Log",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-new-signup",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        112
+      ],
+      "id": "1134d9a8-7fd6-46f9-84e1-8ea2ec71fc76",
+      "name": "Data-out Webhook Ezycourse - SIGNUP",
+      "webhookId": "fff3dc85-3ba8-4454-b7fa-b80194e410cd",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "waaAwfOZusltfsER",
+          "name": "EzyCourse"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5baea4e3-9bd3-4e8b-a4db-159b67a205e6",
+              "leftValue": "={{ $json.headers['x-ezycourse-signature'] }}",
+              "rightValue": "OCdwCyQttoyGXYaWIuffJ1LnEM9lsUNg",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -704,
+        112
+      ],
+      "id": "c22fd943-7457-4696-b603-fd2f74b40cba",
+      "name": "Verify Signature"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        464
+      ],
+      "id": "947978c2-d5c9-40e1-8fc8-81f779b606c1",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.email }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "ezycourse_id",
+              "fieldValue": "={{ $json.body.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        96
+      ],
+      "id": "a4505906-081d-4ebe-b684-9b8c8c1ddfbf",
+      "name": "Update Ezycourse ID",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "subscriptions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        192,
+        96
+      ],
+      "id": "ebc2b119-9a61-4b8e-b07e-3be5624de0ea",
+      "name": "Find the Purchased Product ID",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let ds_product_id = $('Received IPN Event From Digistore').first().json.body.product_id\n\nlet ezycourse_product_id = 0\n\nif(ds_product_id == 651441) {\n  ezycourse_product_id = 4047\n} else if (ds_product_id == 652764) {\n  ezycourse_product_id = 4690\n}\n\n\n\nreturn {\n  ezycourse_product_id\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -400
+      ],
+      "id": "b402a2ee-e17f-4162-9f23-0c83c02db43f",
+      "name": "Product ID Mapping"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.deinegesundheitsschule.de/api/ezycourse/webhooks/create-product-enrollment/f9uMoaS61pMZw9F6bhOmvN-98TODvjqR",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $('Update Ezycourse ID').item.json.email }}"
+            },
+            {
+              "name": "product_id",
+              "value": "={{ $json.ezycourse_product_id }}"
+            },
+            {
+              "name": "product_type",
+              "value": "membership"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        544,
+        96
+      ],
+      "id": "8015dfb4-ce07-41fe-9af7-364f497f462e",
+      "name": "Enroll Student into Product"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $('Update Ezycourse ID').first().json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        912,
+        96
+      ],
+      "id": "064e5da0-2a89-4c7c-80d7-b3aed348c15d",
+      "name": "Get User Quota",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let ez_product_id = $('Find the Purchased Product ID').first().json.ezycourse_product_id\n\nlet quota = 0\n\nif(ez_product_id == 4047) {\n  quota = 20\n} else if (ez_product_id == 4690) {\n  quota = \t60\n}\n\n\n\nreturn {\n  quota\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        96
+      ],
+      "id": "51036490-e586-4f7e-b99c-4846ffd4c84d",
+      "name": "Map Credit Based on Product"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Update Ezycourse ID').first().json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "quota",
+              "fieldValue": "={{ $('Get User Quota') .first().json.quota + $('Map Credit Based on Product').item.json.quota }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        80
+      ],
+      "id": "5507bcd7-8b88-45be-8184-146ee3f0cfd5",
+      "name": "Update Credits",
+      "credentials": {
+        "supabaseApi": {
+          "id": "fHIqf3ehxKRHCXZs",
+          "name": "Supabase account"
+        }
+      }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Add User Record": [
+      {
+        "json": {
+          "id": "64a02023-69ae-46d3-a529-b0acd4d74272",
+          "name": "Bryar Sweet",
+          "email": "wybufij@gmail.com",
+          "quota": 100,
+          "subscription": "free",
+          "created_at": "2026-02-27T10:14:51.321149+00:00",
+          "updated_at": "2026-02-27T10:14:51.321149+00:00",
+          "role": "user",
+          "role_level": 20,
+          "ezycourse_id": null,
+          "privacy_accepted": false
+        }
+      }
+    ],
+    "Route By Event": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.app.medizinzumselbermachen.de",
+            "user-agent": "DigiStore-API/1.0 (Linux; en-US; rv:1.0.0.0) php/20130430 curl/20130430",
+            "content-length": "812",
+            "accept": "*/*",
+            "accept-charset": "utf-8",
+            "accept-encoding": "deflate, gzip, br, zstd",
+            "cache-control": "no-cache",
+            "content-type": "application/x-www-form-urlencoded; charset=utf-8",
+            "x-forwarded-for": "34.95.42.191",
+            "x-forwarded-host": "n8n.app.medizinzumselbermachen.de",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "caf3c9da6002",
+            "x-real-ip": "34.95.42.191"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "email": "wybufij@gmail.com",
+            "first_name": "Bryar",
+            "last_name": "Sweet",
+            "title": "",
+            "salutation": "Mr.",
+            "company": "",
+            "street": "Ipsa dolores est es 174",
+            "city": "Adipisci est qui mi",
+            "zipcode": "99134",
+            "state": "Nisi eos ex ad aut t",
+            "country_code": "PK",
+            "country_name": "Pakistan",
+            "phone_no": "",
+            "order_id": "6ZFAKA5M",
+            "transaction_id": "110974648",
+            "product_name": "Basis-Mitgliedschaft – Deine Gesundheitsschule",
+            "product_name_intern": "Basis-Mitgliedschaft – Deine Gesundheitsschule",
+            "product_id": "651441",
+            "quantity": "1",
+            "receipt_url": "https://www.checkout-ds24.com/receipt/651441/6ZFAKA5M/QHYMA3Z3",
+            "invoice_url": "https://www.digistore24.com/invoice/6ZFAKA5M/110974648/5RAZXLSV.pdf",
+            "eticket_url": "",
+            "custom": "",
+            "tags": "basismitglied,BASIS_M_001",
+            "event": "payment",
+            "amount_brutto": "16.90",
+            "amount_netto": "16.90",
+            "amount_vendor": "14.56",
+            "amount_affiliate": "0.00",
+            "currency": "EUR",
+            "is_gdpr_country": "N"
+          },
+          "webhookUrl": "https://n8n.app.medizinzumselbermachen.de/webhook/get-digistore-info",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Received IPN Event From Digistore": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.app.medizinzumselbermachen.de",
+            "user-agent": "DigiStore-API/1.0 (Linux; en-US; rv:1.0.0.0) php/20130430 curl/20130430",
+            "content-length": "815",
+            "accept": "*/*",
+            "accept-charset": "utf-8",
+            "accept-encoding": "deflate, gzip, br, zstd",
+            "cache-control": "no-cache",
+            "content-type": "application/x-www-form-urlencoded; charset=utf-8",
+            "x-forwarded-for": "34.95.42.191",
+            "x-forwarded-host": "n8n.app.medizinzumselbermachen.de",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "caf3c9da6002",
+            "x-real-ip": "34.95.42.191"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "email": "xabirypuj@gmail.com",
+            "first_name": "Russell",
+            "last_name": "Waller",
+            "title": "",
+            "salutation": "Ms.",
+            "company": "",
+            "street": "Quae provident sed 66",
+            "city": "Similique do tenetur",
+            "zipcode": "37917",
+            "state": "Est et proident est",
+            "country_code": "PK",
+            "country_name": "Pakistan",
+            "phone_no": "",
+            "order_id": "V6LV6MKF",
+            "transaction_id": "111023965",
+            "product_name": "Basis-Mitgliedschaft – Deine Gesundheitsschule",
+            "product_name_intern": "Basis-Mitgliedschaft – Deine Gesundheitsschule",
+            "product_id": "651441",
+            "quantity": "1",
+            "receipt_url": "https://www.checkout-ds24.com/receipt/651441/V6LV6MKF/4Z6ERS64",
+            "invoice_url": "https://www.digistore24.com/invoice/V6LV6MKF/111023965/EUK4RLJY.pdf",
+            "eticket_url": "",
+            "custom": "",
+            "tags": "basismitglied,BASIS_M_001",
+            "event": "payment",
+            "amount_brutto": "16.90",
+            "amount_netto": "16.90",
+            "amount_vendor": "14.56",
+            "amount_affiliate": "0.00",
+            "currency": "EUR",
+            "is_gdpr_country": "N"
+          },
+          "webhookUrl": "https://n8n.app.medizinzumselbermachen.de/webhook/get-digistore-info",
+          "executionMode": "production"
+        }
+      }
+    ],
+    "Data-out Webhook Ezycourse - SIGNUP": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.app.medizinzumselbermachen.de",
+            "user-agent": "PostmanRuntime/7.51.1",
+            "content-length": "121",
+            "accept": "*/*",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "postman-token": "d732e34c-065d-4a90-a745-39732d0c9ebd",
+            "x-ezycourse-signature": "OCdwCyQttoyGXYaWIuffJ1LnEM9lsUNg",
+            "x-forwarded-for": "119.63.128.115",
+            "x-forwarded-host": "n8n.app.medizinzumselbermachen.de",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "caf3c9da6002",
+            "x-real-ip": "119.63.128.115"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": 57098,
+            "name": "Inga Prince",
+            "email": "gicyka@gmail.com",
+            "phone_number": "+919876543210"
+          },
+          "webhookUrl": "https://n8n.app.medizinzumselbermachen.de/webhook/get-new-signup",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
   "settings": {
     "executionOrder": "v1"
   },
@@ -62,7 +821,7 @@
   ],
   "staticData": null,
   "tags": [],
-  "triggerCount": 1,
-  "updatedAt": "2026-02-26T19:17:10.000Z",
-  "versionId": "139b1673-eace-4a68-854b-ca430bc6532f"
+  "triggerCount": 2,
+  "updatedAt": "2026-02-27T12:00:33.000Z",
+  "versionId": "4e511131-321c-4b37-a213-62340ccc21cd"
 }
