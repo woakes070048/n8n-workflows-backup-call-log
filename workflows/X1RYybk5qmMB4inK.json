@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "connections": {
     "Receive newsignup from Ezycourse": {
       "main": [
@@ -212,6 +212,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 2,
-  "updatedAt": "2026-01-22T15:06:55.000Z",
+  "updatedAt": "2026-02-27T10:36:07.000Z",
   "versionId": "2cc906fb-af07-4ea8-9516-2d4d244588d2"
 }
